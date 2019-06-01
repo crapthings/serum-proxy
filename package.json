@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "parcel watch --no-hmr src/index.js -d dist/ -o index.js"
+    "dev": "parcel watch --no-hmr src/index.js -d extension/ -o index.js"
   },
   "keywords": [],
   "author": "",
