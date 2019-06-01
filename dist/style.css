@@ -1,0 +1,35 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 240px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-flow: column;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.pd {
+  padding: 16px;
+}
+
+#root, #menu {
+  height: 100%;
+}
+
+.menu-item:hover {
+  background: whitesmoke;
+  cursor: pointer;
+}
