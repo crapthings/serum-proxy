@@ -1,3 +1,5 @@
+_ = require('lodash')
+
 React = require('react')
 Component = React.Component
 Fragment = React.Fragment
