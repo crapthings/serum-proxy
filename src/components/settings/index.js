@@ -1,6 +1,6 @@
 import { GetSettingsHOC } from '../common'
 
-export default class Settings extends Component {
+class Settings extends Component {
   render() {
     return (
       <GetSettingsHOC>
@@ -36,21 +36,21 @@ class ProxyForm extends Component {
           <div className='flex-1 mgr'>
             <label>
               <div>Host</div>
-              <input type='text' defaultValue={host} onChange={this.submit} required />
+              <input type='text' defaultValue={host || '127.0.0.1'} onChange={this.submit} required />
             </label>
           </div>
 
           <div className='flex-1 mgr'>
             <label>
               <div>Port</div>
-              <input type='text' defaultValue={port} onChange={this.submit} required />
+              <input type='text' defaultValue={port || 1080} onChange={this.submit} required />
             </label>
           </div>
 
           <div className='flex-1 mgr'>
             <label>
-              <div>Mode</div>
-              <input type='text' defaultValue={mode || 'fixed_servers'} onChange={this.submit} onClick={this.toggleMode} disabled required />
+              <div><span>fixed_servers</span> | <span>pac_script</span></div>
+              <input type='text' defaultValue={mode || 'fixed_servers'} onChange={this.submit} onClick={this.toggleMode} required />
             </label>
           </div>
 
@@ -90,3 +90,5 @@ class ProxyForm extends Component {
     })
   }
 }
+
+export default ({ urls }) => route => <Settings />

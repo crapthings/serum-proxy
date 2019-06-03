@@ -2,8 +2,11 @@ import { GetSettingsHOC } from '../common'
 
 var pac = require('./data')
 
-export default class Menu extends Component {
+class Menu extends Component {
   render() {
+    const { urls: _urls } = this.props
+    console.log(_urls)
+
     const menu = [
       { name: 'Direct', mode: 'direct' },
       { name: 'System', mode: 'system' },
@@ -43,6 +46,9 @@ export default class Menu extends Component {
 
     if (mode === 'fixed_servers')
       return this.useProxy({ name, host, port, mode })
+
+    if (mode === 'pac_script')
+      return this.usePac({ name, host, port, mode })
 
     if (mode === 'settings')
       return this.openSettings()
@@ -103,3 +109,5 @@ export default class Menu extends Component {
     })
   }
 }
+
+export default ({ urls, setUrls }) => route => <Menu urls={urls} setUrls={setUrls} />
