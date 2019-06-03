@@ -1,7 +1,5 @@
 import { GetSettingsHOC } from '../common'
 
-var pac = require('./data')
-
 class Menu extends Component {
   render() {
     const { urls: _urls } = this.props
@@ -15,14 +13,23 @@ class Menu extends Component {
 
     return (
       <GetSettingsHOC>
-        {({ currentMode, options, proxies }) => {
+        {({ currentMode, options, proxies, urls }) => {
           const _menu = [menu[0], ...proxies, menu[1], menu[2]]
+
+          if (!_.isEmpty(urls)) {
+            _menu.unshift({
+              name: 'Urls',
+              mode: 'urls',
+            })
+          }
+
           return (
             <div className='flex-column' id='menu'>
               {_menu.map((item, itemIdx) => (
                 <div key={`menu-item-${itemIdx}`} className='flex pd menu-item' onClick={this.onClick(item)}>
                   <span className='flex-1'>{item.name}</span>
                   {currentMode === item.mode && <span style={{ color: 'lightgreen' }}>●</span>}
+                  {item.mode === 'urls' && <span style={{ color: 'darkred' }}>{_.size(urls)}</span>}
                 </div>
               ))}
             </div>
@@ -51,7 +58,10 @@ class Menu extends Component {
       return this.usePac({ name, host, port, mode })
 
     if (mode === 'settings')
-      return this.openSettings()
+      return this.openTab('settings.html')
+
+    if (mode === 'urls')
+      return this.openTab('urls.html')
   }
 
   useMode = mode => {
@@ -81,22 +91,23 @@ class Menu extends Component {
     })
   }
 
-  usePac = () => {
-    const value = {
-      mode: 'pac_script',
-      pacScript: {
-        // url: 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt',
-        data: pac,
+  usePac = ({ host, port }) => {
+    chrome.storage.local.get(['urls'], ({ urls }) => {
+      const value = {
+        mode: 'pac_script',
+        pacScript: {
+          data: require('./data')({ host, port, urls }),
+        }
       }
-    }
 
-    chrome.proxy.settings.set({ value }, () => {
-      this.reloadCurrentTab()
+      chrome.proxy.settings.set({ value }, () => {
+        this.reloadCurrentTab()
+      })
     })
   }
 
-  openSettings = () => {
-    const url = chrome.extension.getURL('settings.html')
+  openTab = file => {
+    const url = chrome.extension.getURL(file)
 
     chrome.tabs.query({ url }, tabs => {
       if (tabs.length) {

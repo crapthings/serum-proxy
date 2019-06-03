@@ -6,12 +6,15 @@ class Settings extends Component {
       <GetSettingsHOC>
         {({ options, proxies }) => (
           <div id='settings'>
-            <div id='proxies'>
+            <h3 className='mgb-2x'>Proxies</h3>
+            <div className='mgb' id='proxies'>
               {proxies.map((proxy, proxyIdx) => (
-                <ProxyForm proxies={proxies} id={proxyIdx} proxy={proxy} />
+                <ProxyForm key={`proxy-form-${proxyIdx}`} proxies={proxies} id={proxyIdx} proxy={proxy} />
               ))}
               <ProxyForm proxies={proxies} id={proxies.length} add={true} />
             </div>
+
+            <h3 className='mgb-2x'>Options</h3>
           </div>
         )}
       </GetSettingsHOC>

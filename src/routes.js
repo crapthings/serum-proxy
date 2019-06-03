@@ -14,6 +14,7 @@ import urijs from 'urijs'
 import {
   Menu,
   Settings,
+  Urls,
 } from './components'
 
 class Root extends Component {
@@ -37,6 +38,7 @@ class Root extends Component {
         <Switch>
           <Route path='/menu.html' component={Menu({ urls, setUrls })} />
           <Route path='/settings.html' component={Settings({ urls, setUrls })} />
+          <Route path='/urls.html' component={Urls({ urls, setUrls })} />
         </Switch>
       </Router>
     )
@@ -58,9 +60,11 @@ class Root extends Component {
 
   setUrls = urls => {
     this.setState({ urls }, () => {
-      console.log(urls)
-      chrome.browserAction.setBadgeText( { text: _.size(urls).toString() } )
-      chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] })
+      chrome.storage.local.set({ urls }, () => {
+        console.log(urls)
+        chrome.browserAction.setBadgeText( { text: _.size(urls).toString() } )
+        chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] })
+      })
     })
   }
 
