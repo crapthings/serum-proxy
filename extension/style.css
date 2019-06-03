@@ -9,6 +9,27 @@ html, body {
   height: 100%;
 }
 
+input[type='text'] {
+  padding: 8px;
+  width: 100%;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid whitesmoke;
+}
+
+button {
+  padding: 8px;
+  outline: none;
+  border: none;
+  background-color: whitesmoke;
+}
+
+button:active {
+  position: relative;
+  top: 1px;
+  left: 1px;
+}
+
 .flex {
   display: flex;
 }
@@ -18,16 +39,37 @@ html, body {
   flex-flow: column;
 }
 
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
 .flex-1 {
   flex: 1;
+}
+
+.mgr {
+  margin-right: 16px;
+}
+
+.mgb {
+  margin-bottom: 16px;
 }
 
 .pd {
   padding: 16px;
 }
 
+.pdlr {
+  padding: 0 16px;
+}
+
 #body-menu {
   width: 240px;
+}
+
+#body-settings {
+  background-color: whitesmoke;
 }
 
 #root, #menu {
@@ -35,9 +77,11 @@ html, body {
   height: 100%;
 }
 
-#options {
+#settings {
   margin: 0 auto;
-  width: 640px;
+  padding: 16px;
+  width: 960px;
+  background-color: white;
 }
 
 .menu-item:hover {

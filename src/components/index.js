@@ -1,2 +1,2 @@
 export { default as Menu } from './menu'
-export { default as Options } from './options'
+export { default as Settings } from './settings'

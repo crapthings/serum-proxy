@@ -11,7 +11,7 @@ import { createBrowserHistory } from 'history'
 
 import {
   Menu,
-  Options,
+  Settings,
 } from './components'
 
 class Root extends Component {
@@ -20,7 +20,7 @@ class Root extends Component {
       <Router history={app.route}>
         <Switch>
           <Route path='/menu.html' component={Menu} />
-          <Route path='/options.html' component={Options} />
+          <Route path='/settings.html' component={Settings} />
         </Switch>
       </Router>
     )

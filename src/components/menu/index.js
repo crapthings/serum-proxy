@@ -1,110 +1,60 @@
-const data = 'function FindProxyForURL(url, host) { return "DIRECT" }'
+import { GetSettingsHOC } from '../common'
 
-export default class GetOptions extends Component {
-  state = {
-    loading: true,
-    currentMode: undefined,
-    host: undefined,
-    port: undefined,
-  }
+var pac = require('./data')
 
-  async componentDidMount() {
-    const actions = [this.getCurrentMode(), this.getHostPort()]
-    const [currentMode, { port, host }] = await Promise.all(actions)
-    this.setState({ loading: false, currentMode, port, host })
-  }
-
+export default class Menu extends Component {
   render() {
-    const { loading, currentMode, host, port } = this.state
-
-    return loading
-      ? <div className='pd'>loading</div>
-      : <Menu data={{ currentMode, host, port }} />
-  }
-
-  getCurrentMode = () => new Promise(resolve => {
-    chrome.proxy.settings.get({}, ({ value: { mode: currentMode } }) => {
-      resolve(currentMode)
-    })
-  })
-
-  getHostPort = () => new Promise(resolve => {
-    chrome.storage.sync.get(['host', 'port'], ({ host, port }) => {
-      resolve({ host, port })
-    })
-  })
-}
-
-
-class Menu extends Component {
-  state = {
-    currentMode: this.props.data.currentMode,
-    host: this.props.data.host,
-    port: this.props.data.port,
-  }
-
-  render() {
-    const { currentMode } = this.state
-
     const menu = [
-      { text: 'Direct', mode: 'direct', onClick: this.useDirect },
-      { text: 'PAC', mode: 'pac_script', onClick: this.usePac },
-      { text: 'Proxy', mode: 'fixed_servers', onClick: this.useProxy },
-      { text: 'Options', mode: 'none', onClick: this.openOptions },
+      { name: 'Direct', mode: 'direct' },
+      { name: 'System', mode: 'system' },
+      { name: 'Settings', mode: 'settings' },
     ]
 
     return (
-      <div className='flex-column' id='menu'>
-        {menu.map(({ text, mode, onClick }, itemIdx) => (
-          <div key={`menu-item-${itemIdx}`} className='flex pd menu-item' onClick={onClick}>
-            <span className='flex-1'>{text}</span>
-            {currentMode === mode && <span>●</span>}
-          </div>
-        ))}
-      </div>
+      <GetSettingsHOC>
+        {({ currentMode, options, proxies }) => {
+          const _menu = [menu[0], ...proxies, menu[1], menu[2]]
+          return (
+            <div className='flex-column' id='menu'>
+              {_menu.map((item, itemIdx) => (
+                <div key={`menu-item-${itemIdx}`} className='flex pd menu-item' onClick={this.onClick(item)}>
+                  <span className='flex-1'>{item.name}</span>
+                  {currentMode === item.mode && <span style={{ color: 'lightgreen' }}>●</span>}
+                </div>
+              ))}
+            </div>
+          )
+        }}
+      </GetSettingsHOC>
     )
   }
 
   reloadCurrentTab = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
       chrome.tabs.reload(tabs[0].id)
+      window.close()
     })
   }
 
-  useDirect = () => {
-    const value = {
-      mode: 'direct',
+  onClick = ({ name, host, port, mode }) => evt => {
+    if (mode === 'direct' || mode === 'system') {
+      return this.useMode(mode)
     }
 
-    chrome.proxy.settings.set({ value }, () => {
-      this.setState({ currentMode: value.mode }, () => {
-        this.reloadCurrentTab()
-      })
+    if (mode === 'fixed_servers')
+      return this.useProxy({ name, host, port, mode })
+
+    if (mode === 'settings')
+      return this.openSettings()
+  }
+
+  useMode = mode => {
+    return chrome.proxy.settings.set({ value: { mode } }, () => {
+      this.reloadCurrentTab()
     })
   }
 
-  usePac = () => {
-    const value = {
-      mode: 'pac_script',
-      pacScript: {
-        // url: 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt',
-        data,
-      }
-    }
-
-    chrome.proxy.settings.set({ value }, () => {
-      this.setState({ currentMode: value.mode }, () => {
-        this.reloadCurrentTab()
-      })
-    })
-  }
-
-  useProxy = () => {
-    const { host, port } = this.props.data
-
-    if (_.isEmpty(host) && _.isEmpty(port))
-      return this.openOptions()
-
+  useProxy = ({ name, host, port, mode }) => {
     const proxy = {
       scheme: 'socks5',
       host,
@@ -112,7 +62,7 @@ class Menu extends Component {
     }
 
     const value = {
-      mode: 'fixed_servers',
+      mode,
       rules: {
         bypassList: [],
         proxyForHttp: proxy,
@@ -121,20 +71,34 @@ class Menu extends Component {
     }
 
     chrome.proxy.settings.set({ value }, () => {
-      this.setState({ currentMode: value.mode }, () => {
-        this.reloadCurrentTab()
-      })
+      this.reloadCurrentTab()
     })
   }
 
-  openOptions = () => {
-    const url = chrome.extension.getURL('options.html')
+  usePac = () => {
+    const value = {
+      mode: 'pac_script',
+      pacScript: {
+        // url: 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt',
+        data: pac,
+      }
+    }
+
+    chrome.proxy.settings.set({ value }, () => {
+      this.reloadCurrentTab()
+    })
+  }
+
+  openSettings = () => {
+    const url = chrome.extension.getURL('settings.html')
 
     chrome.tabs.query({ url }, tabs => {
       if (tabs.length) {
         chrome.tabs.update(tabs[0].id, { active: true })
+        window.close()
       } else {
         chrome.tabs.create({ url })
+        window.close()
       }
     })
   }
