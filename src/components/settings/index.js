@@ -83,7 +83,6 @@ class ProxyForm extends Component {
     _.set(proxies, id, proxy)
     chrome.storage.local.set({ proxies }, () => {
       form.reset()
-      console.log(proxies)
     })
   }
 
@@ -93,8 +92,7 @@ class ProxyForm extends Component {
     chrome.storage.local.set({ proxies }, () => {
       if (app.currentModeId !== id) return
       chrome.proxy.settings.set({ value: { mode: 'direct' } }, () => {
-        chrome.storage.local.set({ currentModeId: 'direct' }, () => {
-        })
+        chrome.storage.local.set({ currentModeId: 'direct' }, () => {})
       })
     })
   }

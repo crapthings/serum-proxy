@@ -26,7 +26,3 @@ chrome.storage.onChanged.addListener(function (result) {
   const _result = _.mapValues(result, ({ newValue }) => newValue)
   mobx.set(app, _result)
 })
-
-chrome.proxy.onProxyError.addListener(function (details) {
-  console.log(details)
-})
