@@ -1,7 +1,7 @@
 import { render } from 'react-dom'
 
 import {
-  BrowserRouter as Router,
+  Router,
   Route,
   Switch,
   Link,
@@ -9,71 +9,23 @@ import {
 
 import { createBrowserHistory } from 'history'
 
-import urijs from 'urijs'
+app.route = createBrowserHistory({})
 
 import {
   Menu,
   Settings,
-  Urls,
 } from './components'
 
 class Root extends Component {
-  state = {
-    urls: {}
-  }
-
-  componentWillMount() {
-    chrome
-      .webRequest
-      .onErrorOccurred
-      .addListener(this.onErrorOccurred, { urls: ['<all_urls>'] })
-  }
-
   render() {
-    const { urls } = this.state
-    const setUrls = this.setUrls
-
     return (
       <Router history={app.route}>
         <Switch>
-          <Route path='/menu.html' component={Menu({ urls, setUrls })} />
-          <Route path='/settings.html' component={Settings({ urls, setUrls })} />
-          <Route path='/urls.html' component={Urls({ urls, setUrls })} />
+          <Route path='/menu.html' component={Menu} />
+          <Route path='/settings.html' component={Settings} />
         </Switch>
       </Router>
     )
-  }
-
-  onErrorOccurred = details => {
-    console.log(details)
-    const { error, initiator, url } = details
-    const { urls } = this.state
-    if (error === 'net::ERR_CONNECTION_TIMED_OUT') {
-      if (initiator)
-        urls[this.formatUrl(initiator)] = this.formatUrl(initiator)
-
-      urls[this.formatUrl(url)] = this.formatUrl(url)
-
-      this.setUrls(urls)
-    }
-  }
-
-  setUrls = urls => {
-    this.setState({ urls }, () => {
-      chrome.storage.local.set({ urls }, () => {
-        console.log(urls)
-        chrome.browserAction.setBadgeText( { text: _.size(urls).toString() } )
-        chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] })
-      })
-    })
-  }
-
-  formatUrl = _url => {
-    let { hostname } = new URL(_url)
-    hostname = hostname.split('.')
-    if (hostname.length > 2)
-      hostname = _.drop(hostname)
-    return hostname.join('.')
   }
 }
 

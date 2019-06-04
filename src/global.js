@@ -6,5 +6,7 @@ Fragment = React.Fragment
 
 Link = require('react-router-dom').Link
 
-App = {}
-app = {}
+mobx = require('mobx')
+autorun = mobx.autorun
+observable = mobx.observable
+observer = require('mobx-react').observer

@@ -1,41 +1,25 @@
-import { GetSettingsHOC } from '../common'
-
-class Menu extends Component {
+@observer
+export default class Menu extends Component {
   render() {
-    const { urls: _urls } = this.props
-    console.log(_urls)
-
     const menu = [
-      { name: 'Direct', mode: 'direct' },
-      { name: 'System', mode: 'system' },
-      { name: 'Settings', mode: 'settings' },
+      { id: 'direct', name: 'Direct', mode: 'direct' },
+      { id: 'system', name: 'System', mode: 'system' },
+      { id: 'settings', name: 'Settings', mode: 'settings' },
     ]
 
+    const { currentModeId, proxies } = app
+
+    const _menu = [menu[0], ...proxies, menu[1], menu[2]]
+
     return (
-      <GetSettingsHOC>
-        {({ currentMode, options, proxies, urls }) => {
-          const _menu = [menu[0], ...proxies, menu[1], menu[2]]
-
-          if (!_.isEmpty(urls)) {
-            _menu.unshift({
-              name: 'Urls',
-              mode: 'urls',
-            })
-          }
-
-          return (
-            <div className='flex-column' id='menu'>
-              {_menu.map((item, itemIdx) => (
-                <div key={`menu-item-${itemIdx}`} className='flex pd menu-item' onClick={this.onClick(item)}>
-                  <span className='flex-1'>{item.name}</span>
-                  {currentMode === item.mode && <span style={{ color: 'lightgreen' }}>●</span>}
-                  {item.mode === 'urls' && <span style={{ color: 'darkred' }}>{_.size(urls)}</span>}
-                </div>
-              ))}
-            </div>
-          )
-        }}
-      </GetSettingsHOC>
+      <div className='flex-column' id='menu'>
+        {_menu.map((item, itemIdx) => (
+          <div key={`menu-item-${item.id}`} className='flex pd menu-item' onClick={this.onClick(item)}>
+            <span className='flex-1'>{item.name}</span>
+            {currentModeId === item.id && <span style={{ color: 'lightgreen' }}>●</span>}
+          </div>
+        ))}
+      </div>
     )
   }
 
@@ -46,31 +30,30 @@ class Menu extends Component {
     })
   }
 
-  onClick = ({ name, host, port, mode }) => evt => {
+  onClick = ({ id, name, host, port, mode }) => evt => {
     if (mode === 'direct' || mode === 'system') {
-      return this.useMode(mode)
+      return this.useMode({ id, mode })
     }
 
     if (mode === 'fixed_servers')
-      return this.useProxy({ name, host, port, mode })
+      return this.useProxy({ id, name, host, port, mode })
 
     if (mode === 'pac_script')
-      return this.usePac({ name, host, port, mode })
+      return this.usePac({ id, name, host, port, mode })
 
     if (mode === 'settings')
       return this.openTab('settings.html')
-
-    if (mode === 'urls')
-      return this.openTab('urls.html')
   }
 
-  useMode = mode => {
-    return chrome.proxy.settings.set({ value: { mode } }, () => {
-      this.reloadCurrentTab()
+  useMode = ({ id: currentModeId, mode }) => {
+    chrome.proxy.settings.set({ value: { mode } }, () => {
+      chrome.storage.local.set({ currentModeId }, () => {
+        this.reloadCurrentTab()
+      })
     })
   }
 
-  useProxy = ({ name, host, port, mode }) => {
+  useProxy = ({ id: currentModeId, name, host, port, mode }) => {
     const proxy = {
       scheme: 'socks5',
       host,
@@ -87,21 +70,25 @@ class Menu extends Component {
     }
 
     chrome.proxy.settings.set({ value }, () => {
-      this.reloadCurrentTab()
+      chrome.storage.local.set({ currentModeId }, () => {
+        this.reloadCurrentTab()
+      })
     })
   }
 
-  usePac = ({ host, port }) => {
+  usePac = ({ id: currentModeId, host, port }) => {
     chrome.storage.local.get(['urls'], ({ urls }) => {
       const value = {
         mode: 'pac_script',
         pacScript: {
-          data: require('./data')({ host, port, urls }),
+          // data: require('./data')({ host, port, urls }),
         }
       }
 
       chrome.proxy.settings.set({ value }, () => {
-        this.reloadCurrentTab()
+        chrome.storage.local.set({ currentModeId }, () => {
+          this.reloadCurrentTab()
+        })
       })
     })
   }
@@ -120,5 +107,3 @@ class Menu extends Component {
     })
   }
 }
-
-export default ({ urls, setUrls }) => route => <Menu urls={urls} setUrls={setUrls} />
