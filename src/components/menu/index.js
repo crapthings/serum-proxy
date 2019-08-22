@@ -63,7 +63,7 @@ export default class Menu extends Component {
     const value = {
       mode,
       rules: {
-        bypassList: [],
+        bypassList: ['localhost', '127.0.0.1'],
         proxyForHttp: proxy,
         proxyForHttps: proxy,
       },
