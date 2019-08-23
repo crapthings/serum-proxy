@@ -1,7 +1,14 @@
 @observer
 export default class Settings extends Component {
   render() {
-    const { proxies } = app
+    const { loading, proxies, options } = app
+
+    if (loading) {
+      return (
+        <div>loading</div>
+      )
+    }
+
     const _proxies = mobx.toJS(proxies)
 
     return (
@@ -15,6 +22,9 @@ export default class Settings extends Component {
         </div>
 
         <h3 className='mgb-2x'>Options</h3>
+        <div id='options'>
+          <OptionsForm options={options} />
+        </div>
       </div>
     )
   }
@@ -95,5 +105,32 @@ class ProxyForm extends Component {
         chrome.storage.local.set({ currentModeId: 'direct' }, () => {})
       })
     })
+  }
+}
+
+class OptionsForm extends Component {
+  render() {
+    const { options } = this.props
+    const bypassList = (options.bypassList || []).join('\n')
+    return (
+      <form onSubmit={this.onSubmit}>
+        <div>
+          <label>
+            <div>Bypass List</div>
+            <textarea rows='5' defaultValue={bypassList} />
+          </label>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <input type='submit' value='Save' />
+        </div>
+      </form>
+    )
+  }
+
+  onSubmit = evt => {
+    evt.preventDefault()
+    const bypassList = _.chain(evt.target[0].value).split('\n').reject(_.isEmpty).value()
+    const options = { bypassList }
+    chrome.storage.local.set({ options }, () => {})
   }
 }

@@ -1,4 +1,5 @@
 app = observable({
+  loading: true,
   currentMode: undefined,
   currentModeId: undefined,
   options: {},
@@ -11,6 +12,7 @@ chrome.storage.local.get([
   'options',
   'proxies',
 ], result => {
+  result.loading = false
   mobx.set(app, result)
 })
 

@@ -1,6 +1,14 @@
 @observer
 export default class Menu extends Component {
   render() {
+    const { loading } = app
+
+    if (loading) {
+      return (
+        <div>loading</div>
+      )
+    }
+
     const menu = [
       { id: 'direct', name: 'Direct', mode: 'direct' },
       { id: 'system', name: 'System', mode: 'system' },
@@ -54,6 +62,8 @@ export default class Menu extends Component {
   }
 
   useProxy = ({ id: currentModeId, name, host, port, mode }) => {
+    const bypassList = (app.options.bypassList && mobx.toJS(app.options.bypassList) || [])
+
     const proxy = {
       scheme: 'socks5',
       host,
@@ -63,7 +73,7 @@ export default class Menu extends Component {
     const value = {
       mode,
       rules: {
-        bypassList: ['localhost', '127.0.0.1'],
+        bypassList,
         proxyForHttp: proxy,
         proxyForHttps: proxy,
       },
@@ -78,6 +88,7 @@ export default class Menu extends Component {
 
   usePac = ({ id: currentModeId, host, port }) => {
     chrome.storage.local.get(['urls'], ({ urls }) => {
+      alert(urls)
       const value = {
         mode: 'pac_script',
         pacScript: {
