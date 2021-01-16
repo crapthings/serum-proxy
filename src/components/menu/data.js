@@ -11,7 +11,7 @@ module.exports = ({ host, port, urls }) => `
     return "DIRECT"
   }
 
-  function getHostname(hostname) {
+  function getHostname (hostname) {
     let _hostname = hostname.split('.')
 
     if (_hostname.length > 2) {

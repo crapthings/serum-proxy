@@ -74,12 +74,11 @@ export default class Menu extends Component {
       mode,
       rules: {
         bypassList,
-        proxyForHttp: proxy,
-        proxyForHttps: proxy,
+        singleProxy: proxy,
       },
     }
 
-    chrome.proxy.settings.set({ value }, () => {
+    chrome.proxy.settings.set({ value, scope: 'regular' }, () => {
       chrome.storage.local.set({ currentModeId }, () => {
         this.reloadCurrentTab()
       })
@@ -88,7 +87,7 @@ export default class Menu extends Component {
 
   usePac = ({ id: currentModeId, host, port }) => {
     chrome.storage.local.get(['urls'], ({ urls }) => {
-      alert(urls)
+      // alert(urls)
       const value = {
         mode: 'pac_script',
         pacScript: {
