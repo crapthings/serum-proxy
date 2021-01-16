@@ -117,7 +117,7 @@ class OptionsForm extends Component {
         <div>
           <label>
             <div>Bypass List</div>
-            <textarea rows='5' defaultValue={bypassList} />
+            <textarea rows='100' defaultValue={bypassList} />
           </label>
         </div>
         <div style={{ textAlign: 'right' }}>
